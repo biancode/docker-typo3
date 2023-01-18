@@ -1,0 +1,72 @@
+# Docker image for TYPO3 CMS
+# Copyright (C) 2016-2020  Martin Helmich <martin@helmich.me>
+#                          and contributors <https://github.com/martin-helmich/docker-typo3/graphs/contributors>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+version: "3"
+
+services:
+
+  typo3:
+    build: ..
+    environment:
+      - SERVER_NAME=${SERVER_NAME:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - www:/var/www/html
+      - fileadmin:/var/www/html/fileadmin
+      - typo3conf:/var/www/html/typo3conf
+      - typo3temp:/var/www/html/typo3temp
+      - uploads:/var/www/html/uploads
+    networks:
+      - backend
+
+  database:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=${P4NR_CMS_DB_NAME:-typo3}
+      - POSTGRES_USER=${P4NR_CMS_DB_USER_NAME:-typo3}
+      - POSTGRES_PASSWORD=${P4NR_CMS_DB_PASSWORD:-password}
+    networks:
+      - backend
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - backup:/backup
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:
+    driver: local
+  backup:
+    driver: local
+  www:
+    driver: local
+  fileadmin:
+    driver: local
+  typo3conf:
+    driver: local
+  typo3temp:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  backend:
+    external: false
