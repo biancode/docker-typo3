@@ -31,8 +31,8 @@ RUN apt-get update && \
         libpq-dev \
         libzip-dev \
         zlib1g-dev \
-# Install required 3rd party tools
-        graphicsmagick && \
+# Install editor and required 3rd party tools
+        nano graphicsmagick && \
 # Configure extensions
     docker-php-ext-configure gd --with-libdir=/usr/include/ --with-jpeg --with-freetype && \
     docker-php-ext-install -j$(nproc) mysqli soap gd zip opcache intl pgsql pdo_pgsql && \
@@ -64,9 +64,12 @@ RUN cd /var/www/html && \
     mkdir fileadmin && \
     mkdir uploads && \
     touch FIRST_INSTALL && \
-    chown -R www-data. .
+    chown -R www-data. . && \
+    echo "ServerName ${SERVER_NAME}" >> /etc/apache2/apache2.conf && \
+    echo "${SERVER_NAME} was set as default ServerName" > servername.txt
 
 # Configure volumes
+VOLUME /var/www/html
 VOLUME /var/www/html/fileadmin
 VOLUME /var/www/html/typo3conf
 VOLUME /var/www/html/typo3temp
